@@ -9,12 +9,13 @@
     <link rel='stylesheet' href='/stylesheets/jquery-ui.theme.min.css' />
     <script src="javascripts/jquery.js"></script>
     <script src="javascripts/jquery-ui.js"></script>
-    <script src="javascripts/echarts.min.js"></script>
+    <script src="javascripts/echarts.js"></script>
   </head>
   <body>
     <h1><%= title %></h1>
     <p>Welcome to <%= title %></p>
-    <div id="main1"></div>
+    <div id="main" style="width: 800px;height:600px;"></div>
+
     <div id="first">
         <form action="/upload" method="post" enctype="multipart/form-data">
            <h2>单图上传</h2>
@@ -32,6 +33,14 @@
     </div>
     <button id="b" type="button">file</button>
     <button onclick="showBar()">Show Radar Charts</button>
+    <input type="text" id="SupplierID" value=""/>
+    <select>
+       <option value ="volvo">Volvo</option>
+       <option value ="saab">Saab</option>
+       <option value="opel">Opel</option>
+      <option value="audi">Audi</option>
+    </select>
+
     <script type="text/javascript">
  
     	$(function(){
@@ -47,9 +56,10 @@
     	})
 
 var hash=[];
+/*
 $(function(){
 	$("#b").click(function(){
-       $.post({url:"/2",async:false,success:function(responseText){
+       $.get({url:"/2",async:false,success:function(responseText){
            	  $("#fn").html(responseText);
               alert(responseText);
               result = responseText;
@@ -58,67 +68,86 @@ $(function(){
              }});              
         });
 })
+*/
+      function getData(url_temp){
+        var xhr = new XMLHttpRequest();
+        xhr.open("GET",url_temp,true);
+        console.log("url_temp = " + url_temp);
+        xhr.setRequestHeader("Content-type","application/x-www-form-urlencoded"); 
+        xhr.onreadystatechange = function(){
+          console.log("You have entered onreadstate!")
+          if (xhr.readyState===4) {
+            if (xhr.status===200) {
+              result = xhr.responseText;
+              result = eval('('+result +')');
+              
+//              if (radar) {drawRadar(result);};
+//              if (histo) {drawHistogram(result)};
+              drawBar(result);
+            };
+          };
+        }
+
+        xhr.send(null);
+      }
+
+      function showBar(){
+        //var url_temp = "http://audittoolbeta.mybluemix.net/get?q=project:\""+projectId + "\"" + "AND NOT finding:\"\"&group_field=area&limit=1";
+        
+        var url_temp="/2"
+ //       var url_temp = "http://audittoolbeta.mybluemix.net/get?q=project:\"" + projectId + "\" AND NOT finding:\"\"&group_field=area&limit=1"
+ //       histo = true;
+ //       radar = false;
+        //console.log("projectid = " + projectId);
+        getData(url_temp);
+        //drawHistogram();
+      }
+
+function drawBar(result){
+         var data = result.data
+        
+        var myChart = echarts.init(document.getElementById('main'));
+
+        // 指定图表的配置项和数据
+        var option = {
+            title: {
+                text: 'ECharts 入门示例'
+            },
+            tooltip: {},
+            legend: {
+                data:['销量']
+            },
+            xAxis: {
+                data: ["Jan","Feb","Mar","Apr","May","Jun","July","Aug","Sep","Oct","Nov","Dec"]
+            },
+            yAxis: {},
+            dataZoom: [
+            {   // 这个dataZoom组件，默认控制x轴。
+            type: 'slider', // 这个 dataZoom 组件是 slider 型 dataZoom 组件
+            start: 10,      // 左边在 10% 的位置。
+            end: 60         // 右边在 60% 的位置。
+            },
+            {   // 这个dataZoom组件，也控制x轴。
+            type: 'inside', // 这个 dataZoom 组件是 inside 型 dataZoom 组件
+            start: 10,      // 左边在 10% 的位置。
+            end: 60         // 右边在 60% 的位置。
+            }
+            ],
+            series: [{
+                name: '销量',
+                type: 'bar',
+                data: data
+            }]
 
 
+        };
+
+        // 使用刚指定的配置项和数据显示图表。
+        myChart.setOption(option);
+
+}
 
 
-var myChart1 = echarts.init(document.getElementById('main1'));
-
-      option1 = {
-        title: {
-              text: 'Technology Audit Findings Summary'
-          },
-          color: ['#3398DB'],
-          tooltip : {
-              trigger: 'axis',
-              axisPointer : {            // 坐标轴指示器，坐标轴触发有效
-                  type : 'shadow'        // 默认为直线，可选为：'line' | 'shadow'
-              }
-          },
-          grid: {
-              left: '3%',
-              right: '4%',
-              bottom: '30%',
-              containLabel: true
-          },
-          xAxis : [
-              {
-                  type : 'category',
-                  data: stdTName,
-                  //data : ['MSD Control', 'Traceability', 'Component Preparation', 'Paste and Glue Application', 'Auto-Place and Auto-Insert', 'Reflow and Curing', 'Post-Reflow and Cure Inspection', 'Manual Insert', 'Wave Soldering', 'Post-Wave Inspection', 'PCA Cleaning', 'Press Fit and Heatsink', 'Test Process', 'Rework', 'Final QC Inspection', 'Development & Qualification', 'Quality Management System', 'External & Internal audit', 'NC & Maverick', 'SPC', 'Training & Certification', 'Document Control & PCN', 'Calibration & Maintenance', 'Material & Supplier', 'IQC & Warehouse', 'ESD Control', 'Ramp-Up & Disaster Recovery' ],
-                  axisTick: {
-                      alignWithLabel: true
-                  },
-                  axisLabel: {
-                    interval: 0, //横轴信息全部显示
-                    rotate: 90, //60度角倾斜
-                  }
-              }
-          ],
-          yAxis : [
-              {
-                  type : 'value'
-              }
-          ],
-          series : [
-              {
-                  //name:'直接访问',
-                  type:'bar',
-                  barWidth: '60%',
-                  data: resultTRatio,
-                  //data:[7, 22, 16, 54, 42, 17, 24, 20, 23, 8, 14, 63, 49, 37, 15, 19, 14, 12, 27, 11, 18, 30, 16, 13, 35, 9, 13 ],
-                  label: {
-                    normal: {
-                      show: true,
-                      position: 'top'
-                    }
-                  }
-              }
-          ]
-      };
-
-      // 使用刚指定的配置项和数据显示图表。
-      myChart1.setOption(option1);  
     </script>
    <div id="show">
    	<button></button>
