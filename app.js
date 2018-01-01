@@ -36,7 +36,7 @@ WalkDirs("../public")
 */
 
 //解析需要遍历的文件夹，我这以E盘根目录为例  
-var filePath = path.resolve('..\\fly\\upload');  
+var filePath = path.resolve('..\\renew\\upload');  
 var arr=[];  
 //调用文件遍历方法  
 //fileDisplay(filePath);  
@@ -45,6 +45,7 @@ var arr=[];
  * 文件遍历方法 
  * @param filePath 需要遍历的文件路径 
  */  
+
 
 function fileDisplay(filePath){  
     //根据文件路径读取文件，返回文件列表  
@@ -79,14 +80,43 @@ function fileDisplay(filePath){
              
         }  
     });  
-} 
-app.post('/2', function(req, res, next) {
+}
+
+
+
+
+var hash=[];
+var j={data:hash}
+//var url='./upload/Foxconn Scorecard_2015.xls'
+//var url = './upload/test.xlsx'
+//var range={s:{c:0, r:2}, e:{c:1, r:6}}
+//var range={s:{c:0, r:2}, e:{c:0, r:6}}
+//var output = output(url,range)
+console.log(hash[3])
+console.log(j)
+
+setInterval(function(){
+var url = './upload/test.xlsx'
+//var range={s:{c:0, r:2}, e:{c:1, r:6}}
+var range={s:{c:0, r:2}, e:{c:0, r:6}} 
+ output(url,range) 
+},3000)
+
+var no=JSON.stringify(j);
+console.log(no)
+
+//var j='{"name":"johnny","gender":"male"}' 
+app.get('/2', function(req, res, next) {
 //                      res.render('index', { title: 'Express' });
      fileDisplay(filePath); 
+
+//var range={s:{c:0, r:2}, e:{c:1, r:6}}
+
 //     console.log(arr);
      
-     res.send('<p>'+hash[0]+'</p>'+'<br>'+'<p>'+hash[1]+'</p>'+'<p>'+hash[2]+'</p>');
-     res.send(hash);
+ //    res.send('<p>'+hash[0]+'</p>'+'<br>'+'<p>'+hash[1]+'</p>'+'<p>'+hash[2]+'</p>');
+//     res.send(hash);
+     res.send(j);
 
      
 }); 
@@ -118,7 +148,7 @@ app.post('/upload', upload.single('logo'), function(req, res, next){
     res.send({ret_code: '0'});
 });
 
-var hash=[];
+
 
 function output(url,range){
   if(typeof require !== 'undefined') XLSX = require('xlsx');
@@ -126,7 +156,7 @@ function output(url,range){
 //  console.log(workbook);
 
   var first_sheet_name = workbook.SheetNames[0];
-  var address_of_cell = 'A19';
+  var address_of_cell = 'A2';
 
 /* Get worksheet */
   var worksheet = workbook.Sheets[first_sheet_name];
@@ -161,12 +191,7 @@ function output(url,range){
 
 
 
-//var url='./upload/Foxconn Scorecard_2015.xls'
-var url = './upload/test.xlsx'
-//var range={s:{c:0, r:2}, e:{c:1, r:6}}
-var range={s:{c:0, r:2}, e:{c:0, r:6}}
-var output = output(url,range)
-console.log(hash[3])
+
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
